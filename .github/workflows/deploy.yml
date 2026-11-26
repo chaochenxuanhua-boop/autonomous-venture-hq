@@ -1,0 +1,78 @@
+name: Daily Portfolio Health Probe & Deploy Autonomous Venture HQ
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  schedule:
+    # Runs daily at 08:05 JST (23:05 UTC)
+    - cron: "5 23 * * *"
+  workflow_dispatch:
+    inputs:
+      live_check:
+        description: "Run live HTTP health probes against 07/08/09 JSON API feeds"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  probe-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile pipeline & run unit tests
+        run: |
+          python -m py_compile pipeline/hq_health_probe.py
+          python pipeline/hq_health_probe.py --self-test
+          python -m unittest discover -s tests -p "test_*.py" -v
+
+      - name: Build manifest and run daily health probe
+        env:
+          LIVE_CHECK: ${{ github.event.inputs.live_check || 'false' }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ "$LIVE_CHECK" = "true" ] || [ "$EVENT_NAME" = "schedule" ]; then
+            python pipeline/hq_health_probe.py --build --live-check
+          else
+            python pipeline/hq_health_probe.py --build
+          fi
+          python pipeline/hq_health_probe.py --validate
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload static dashboard artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./site"
+
+  deploy:
+    needs: probe-and-build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

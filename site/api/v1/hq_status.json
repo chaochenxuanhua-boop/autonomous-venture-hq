@@ -1,0 +1,66 @@
+{
+  "service": "autonomous-venture-hq",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-11-26T10:14:08+00:00",
+  "probe_mode": "offline_baseline",
+  "overall_status": "healthy",
+  "total_systems_monitored": 11,
+  "scheduled_loops_active": 8,
+  "manifest_sha256": "422b97bbcef8383013a398afdefa5f95d44364648f3505c3f4e125b0ff6925ab",
+  "active_feed_probes": [
+    {
+      "venture_id": "07",
+      "title_ja": "07: SaaS値上げ・改悪フィード",
+      "endpoint_label": "api/v1/changes.json",
+      "url": "https://chaochenxuanhua-boop.github.io/saas-shrinkflation-watch/api/v1/changes.json",
+      "site_url": "https://chaochenxuanhua-boop.github.io/saas-shrinkflation-watch/",
+      "mode": "offline_baseline",
+      "reachable": true,
+      "http_status": 200,
+      "latency_ms": 0,
+      "record_count": null,
+      "feed_timestamp": null,
+      "status_badge_ja": "ブラウザ実行時にライブ取得",
+      "checked_at": "2026-11-26T10:14:08+00:00",
+      "url_digest": "a811953a4806"
+    },
+    {
+      "venture_id": "08",
+      "title_ja": "08: 米国FDA/CPSCリコールフィード",
+      "endpoint_label": "api/v1/recalls.json",
+      "url": "https://chaochenxuanhua-boop.github.io/us-seller-compliance-watch/api/v1/recalls.json",
+      "site_url": "https://chaochenxuanhua-boop.github.io/us-seller-compliance-watch/",
+      "mode": "offline_baseline",
+      "reachable": true,
+      "http_status": 200,
+      "latency_ms": 0,
+      "record_count": null,
+      "feed_timestamp": null,
+      "status_badge_ja": "ブラウザ実行時にライブ取得",
+      "checked_at": "2026-11-26T10:14:08+00:00",
+      "url_digest": "7d747c2b55e4"
+    },
+    {
+      "venture_id": "09",
+      "title_ja": "09: 自己修復APIテレメトリ",
+      "endpoint_label": "api/v1/health_status.json",
+      "url": "https://chaochenxuanhua-boop.github.io/open-data-api-foundry/api/v1/health_status.json",
+      "site_url": "https://chaochenxuanhua-boop.github.io/open-data-api-foundry/",
+      "mode": "offline_baseline",
+      "reachable": true,
+      "http_status": 200,
+      "latency_ms": 0,
+      "record_count": null,
+      "feed_timestamp": null,
+      "status_badge_ja": "ブラウザ実行時にライブ取得",
+      "checked_at": "2026-11-26T10:14:08+00:00",
+      "url_digest": "d3c6b3300bb9"
+    }
+  ],
+  "scorecard_snapshot": {
+    "go_count": 4,
+    "iterate_count": 0,
+    "kill_freeze_count": 0,
+    "top_focus_venture_id": "09"
+  }
+}

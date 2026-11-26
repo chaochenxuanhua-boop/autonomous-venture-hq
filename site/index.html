@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-F0ZLS15LNQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-F0ZLS15LNQ');
+    document.addEventListener('click', function(e) {
+      var el = e.target && e.target.closest ? e.target.closest('a, button') : null;
+      if (!el || typeof gtag !== 'function') return;
+      var label = (el.textContent || '').trim().slice(0, 60);
+      var href = el.getAttribute('href') || '';
+      if (el.id || (href && (href.indexOf('http') === 0 || href.indexOf('mailto:') === 0))) {
+        gtag('event', 'cta_engagement', {
+          element_id: el.id || 'link',
+          element_text: label,
+          link_url: href,
+          page_path: location.pathname
+        });
+      }
+    });
+  </script>
+  <title>自律AI事業ポートフォリオ管理画面 | Autonomous Venture HQ</title>
+  <meta name="description" content="GCP Shorts・比較ブログおよび全10事業の公開URL、マネタイズ区分、自動Cron死活監視、Muse 14日間Go/Kill投資判定スコアカードを一元管理するオーナー専用コックピット。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="site-header no-print">
+    <div class="header-inner">
+      <a href="./index.html" class="brand-link" id="nav-brand-hq">Autonomous Venture HQ</a>
+      <nav class="nav-tabs" aria-label="セクション移動">
+        <a href="#section-probes" class="nav-tab active" id="nav-tab-probes">ライブAPI監視</a>
+        <a href="#section-telemetry" class="nav-tab" id="nav-tab-telemetry">全11系統一覧</a>
+        <a href="#section-scorecard" class="nav-tab" id="nav-tab-scorecard">14日Go/Kill判定</a>
+        <a href="./api/v1/hq_status.json" class="nav-tab mono" id="nav-tab-api-json" target="_blank" rel="noopener">hq_status.json</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-intro">
+      <h1>自律AI事業ポートフォリオ管理画面</h1>
+      <p class="page-subtitle">全11系統の稼働状況・API死活監視・14日間Go/Kill判定を一元管理します。</p>
+    </div>
+
+    <!-- Immediate Interactive Control Bar Above the Fold -->
+    <section class="control-card no-print" aria-label="検索・ライブ疎通操作">
+      <div class="control-row">
+        <div class="search-field-wrap">
+          <label for="system-search-input" class="field-label">事業・リポジトリ・収益モデル検索</label>
+          <input
+            type="search"
+            id="system-search-input"
+            class="text-input"
+            placeholder="例: SaaS, FDA, n8n, A8, 産廃, PCB, Shorts..."
+            autocomplete="off"
+          >
+        </div>
+        <div class="control-actions">
+          <button type="button" id="run-live-probe-btn" class="btn-primary">
+            ライブAPI疎通チェックを実行
+          </button>
+          <span id="probe-status-summary" class="inline-status-note num">初期読込中...</span>
+        </div>
+      </div>
+
+      <div class="chip-row" role="group" aria-label="稼働カテゴリ絞り込み">
+        <button type="button" class="filter-chip active" id="chip-filter-all" data-category="ALL">
+          すべて表示
+        </button>
+        <button type="button" class="filter-chip" id="chip-filter-active" data-category="active_ai_loop">
+          <span class="status-dot dot-green"></span>日次Active AI (07-09)
+        </button>
+        <button type="button" class="filter-chip" id="chip-filter-jp-db" data-category="jp_scheduled_db">
+          <span class="status-dot dot-blue"></span>週次国内DB (02・06)
+        </button>
+        <button type="button" class="filter-chip" id="chip-filter-leadgen" data-category="b2b_leadgen">
+          <span class="status-dot dot-amber"></span>B2B送客済 (03・05)
+        </button>
+        <button type="button" class="filter-chip" id="chip-filter-waitlist" data-category="b2b_waitlist">
+          <span class="status-dot dot-slate"></span>待機枠検証 (01・04)
+        </button>
+        <button type="button" class="filter-chip" id="chip-filter-gcp" data-category="gcp_media">
+          <span class="status-dot dot-green"></span>GCP Shorts・Blog
+        </button>
+      </div>
+    </section>
+
+    <!-- Section 1: Live Fetch Ping / JSON Feed Probe for 07, 08, 09 -->
+    <section class="panel-card" id="section-probes" aria-labelledby="probes-heading">
+      <div class="section-header-row">
+        <div>
+          <h2 id="probes-heading">Active AI JSONフィード死活監視（07・08・09）</h2>
+          <p class="section-caption">ブラウザから公開APIエンドポイントへ直接fetchを実行し、HTTP応答・レイテンシ・収録件数を検証します。</p>
+        </div>
+        <span id="last-probe-time-label" class="meta-mono mono">未実行</span>
+      </div>
+
+      <div class="probe-grid" id="probe-cards-grid">
+        <!-- Populated dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- Section 2: Master 11-System Portfolio Telemetry Table -->
+    <section class="panel-card" id="section-telemetry" aria-labelledby="telemetry-heading">
+      <div class="section-header-row">
+        <div>
+          <h2 id="telemetry-heading">全自律システム稼働レジストリ（GCP + Ventures 01–10）</h2>
+          <p class="section-caption">公開URL・マネタイズ区分・自動Cronスケジュール・データフィードへの統合アクセス一覧です。</p>
+        </div>
+        <span id="filtered-systems-count" class="count-label num">11 / 11 系統</span>
+      </div>
+
+      <div class="table-scroll-wrap">
+        <table class="data-table" aria-describedby="telemetry-heading">
+          <thead>
+            <tr>
+              <th class="col-id">ID</th>
+              <th class="col-name">システム名・参入障壁（Moat）</th>
+              <th class="col-tier">マネタイズ区分</th>
+              <th class="col-cron">自動Cronスケジュール</th>
+              <th class="col-health">フィード状態</th>
+              <th class="col-links no-print">運用リンク</th>
+            </tr>
+          </thead>
+          <tbody id="systems-table-body">
+            <!-- Populated dynamically by app.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 3: Muse 14-Day Experiment Go/Kill Scorecard Calculator -->
+    <section class="panel-card" id="section-scorecard" aria-labelledby="scorecard-heading">
+      <div class="section-header-row">
+        <div>
+          <h2 id="scorecard-heading">Muse 14日間スプリント Go / Kill 投資判定スコアカード</h2>
+          <p class="section-caption">07・08・09・06の実測値（GSC表示・GA4クリック・成約シグナル・Cron稼働率）から集中投資と凍結を自動判定します。</p>
+        </div>
+        <div class="scorecard-toolbar no-print">
+          <button type="button" id="preset-day14-split-btn" class="btn-secondary">14日後分岐サンプルを試す</button>
+          <button type="button" id="preset-default-btn" class="btn-secondary">初期ベンチマークに戻す</button>
+          <button type="button" id="export-scorecard-json-btn" class="btn-secondary">判定JSON保存</button>
+          <button type="button" id="print-report-btn" class="btn-secondary">A4レポート印刷</button>
+        </div>
+      </div>
+
+      <div class="kpi-summary-grid">
+        <div class="kpi-tile">
+          <span class="kpi-label">GO（集中投資・拡大）</span>
+          <span class="kpi-value status-text-green num" id="scorecard-go-count">0</span>
+        </div>
+        <div class="kpi-tile">
+          <span class="kpi-label">ITERATE（導線改善）</span>
+          <span class="kpi-value status-text-amber num" id="scorecard-iterate-count">0</span>
+        </div>
+        <div class="kpi-tile">
+          <span class="kpi-label">KILL / 凍結（無人保守）</span>
+          <span class="kpi-value status-text-slate num" id="scorecard-kill-count">0</span>
+        </div>
+        <div class="kpi-tile">
+          <span class="kpi-label">最優先フォーカス事業</span>
+          <span class="kpi-value mono" id="scorecard-top-focus">--</span>
+        </div>
+      </div>
+
+      <div class="table-scroll-wrap">
+        <table class="data-table scorecard-table" aria-describedby="scorecard-heading">
+          <thead>
+            <tr>
+              <th>対象事業</th>
+              <th class="num-col">経過日数</th>
+              <th class="num-col">GSC表示回数</th>
+              <th class="num-col">CTAクリック</th>
+              <th class="num-col">成約・反応数</th>
+              <th class="num-col">Cron稼働率(%)</th>
+              <th class="num-col">スコア / CTR</th>
+              <th>判定・推奨アクション</th>
+            </tr>
+          </thead>
+          <tbody id="scorecard-table-body">
+            <!-- Populated dynamically by app.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="scorecard-footer-bar no-print">
+        <span class="footer-hint">入力値はブラウザのローカル領域（localStorage）に自動保存されます。サーバー送信や認証は不要です。</span>
+        <a
+          href="mailto:chaochenxuanhua@gmail.com?subject=%5BAutonomous%20Venture%20HQ%5D%2014%E6%97%A5%E9%96%93Go%2FKill%E5%88%A4%E5%AE%9A%E3%83%A1%E3%83%A2"
+          id="mailto-memo-link"
+          class="btn-link-action"
+        >
+          判定サマリーを運営事務局メールへ記録
+        </a>
+      </div>
+    </section>
+
+    <!-- Secondary Metadata & Governance Notes Below the Fold -->
+    <details class="governance-details no-print">
+      <summary>14日間Go/Kill判定基準および特定商取引法リスクゼロ運用ポリシーを確認する</summary>
+      <div class="details-body">
+        <p><strong>1. Go / Iterate / Kill 機械判定ルール：</strong> 経過14日時点でモメンタムスコア70点以上（または目標成約数かつ目標CTAクリック数達成）を「GO（集中投資）」、スコア40点未満かつ成約ゼロを「KILL / 凍結（GitHub Actionsの無料自動Cronのみ残して人的工数をゼロ化）」と判定します。</p>
+        <p><strong>2. 段階的マネタイズと個人情報保護：</strong> Level 1（A8.net等のASP送客）およびLevel 2（B2B専門業者・行政書士への無料診断送客）は直接決済を行わないため、特定商取引法に基づく自宅住所・電話番号の公開リスクなしで即時運用できます。Level 3およびApify有料枠はリード5件到達後にのみ開放します。</p>
+      </div>
+    </details>
+
+    <footer class="site-footer">
+      <div class="footer-meta-strip">
+        <span>監視対象: <strong id="stat-total-systems" class="num">11</strong> 系統</span>
+        <span>自動Cron稼働: <strong id="stat-scheduled-loops" class="num">8</strong> 系統</span>
+        <span>最終疎通確認: <span id="stat-last-probed" class="mono">未確認</span></span>
+        <span>Manifest SHA-256: <span id="stat-manifest-hash" class="mono">--</span></span>
+      </div>
+      <div class="footer-links-row no-print">
+        <span>Autonomous Venture HQ運営事務局</span>
+        <a href="mailto:chaochenxuanhua@gmail.com" id="footer-contact-link">chaochenxuanhua@gmail.com</a>
+        <a href="./data/portfolio_manifest.json" id="footer-manifest-link" target="_blank" rel="noopener">portfolio_manifest.json</a>
+        <a href="./sitemap.xml" id="footer-sitemap-link" target="_blank" rel="noopener">sitemap.xml</a>
+      </div>
+    </footer>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
